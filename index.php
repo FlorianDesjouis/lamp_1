@@ -1,64 +1,67 @@
 <?php
-    session_start();
-    if(empty($_SESSION['choice'])) {
-        $choice = rand(0, 100);
-        $_SESSION['choice'] = $choice;
-    }else{
-        $choice = $_SESSION['choice'];
-    }
-    $response = null;
-    if(empty($_SESSION['count'])) {
-        $count = 0;
-        $_SESSION['count'] = $count;
-    }else{
-        $count = $_SESSION['count'];
-    }
-    if(empty($_SESSION['best'])) {
-        $best = 100;
-        $_SESSION['best'] = $best;
-    }else{
-        $best = $_SESSION['best'];
-    }
-    if(!isset($_POST['guess']) || empty($_POST['guess'])){
-        $response = 'pas de nombre';
-    }
-    else{
-        $guess = $_POST['guess'];
-        if($guess > $choice){
-            $response = "C'est moins";
-            $count++;
-            $_SESSION['count'] = $count;
-        }elseif($guess < $choice){
-            $response = "C'est plus";
-            $count++;
-            $_SESSION['count'] = $count;
-        }else{
-            $response = "C'est gagné";
-            unset($_SESSION['choice']);
-            $count++;
-            $_SESSION['count'] = $count;
-            unset($_SESSION['count']);
+session_start();
+
+if(!isset($_SESSION['user'])){
+    header("Location: /login.php");
+    exit;
+}
+if(isset($_POST['reset_best'])){
+    unset($_SESSION['best_score']);
+}
+if(empty($_SESSION['choice']) || isset($_POST['reset'])){
+    $choice  =  rand(0,100);
+    $_SESSION['score'] = 0;
+    $_SESSION['choice'] = $choice;
+}else{
+    $choice = $_SESSION['choice'];
+}
+
+$response = null;
+if( !isset($_POST['guess'])
+    || empty($_POST['guess'])){
+    $response = "Pas de nombre";
+}else{
+    $guess = $_POST['guess'];
+    $_SESSION['score']++;
+    if($guess > $choice) {
+        $response = "C'est moins";
+    }elseif($guess < $choice){
+        $response = "C'est plus";
+    }else {
+        $response = "C'est gagné";
+        if (!isset($_SESSION['best_score']) || $_SESSION['best_score'] > $_SESSION['score']){
+            $_SESSION['best_score'] = $_SESSION['score'];
         }
-        if($count < $best){
-            $best = $count;
-            $_SESSION['best']=$best;
-        }
+        unset($_SESSION['choice']);
     }
+}
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-<title>Des papiers dans un bol</title>
+    <meta charset="UTF-8">
+    <title>Des papiers dans un bol </title>
 </head>
 <body>
-    <?php echo $response;?>
-    <form method="post">
-        <input type="text" name="guess">
-        <input type="submit"><br>
-        (la réponse est <?php echo $choice ?>)<br>
-        Nombre d'essais <?php echo $count ?><br>
-        Meilleur score <?php echo $best ?>
-    </form>
+
+<?php echo $response;?><br>
+Nombre de coup : <?php echo $_SESSION['score']; ?>
+<form method="POST">
+    <input type="text" name="guess" autofocus>
+    <input type="submit">
+    <input type="submit" name="reset" value="reset">
+    <input type="submit" name="reset_best" value="reset best">
+</form>
+<em>(La réponse est <?php echo $choice?>)</em>
+<em>Meilleur coup : <?php
+    echo !isset($_SESSION['best_score'])
+        ? "Pas de meilleur score"
+        : $_SESSION['best_score'];
+    ?></em>
+<form method="post" action="/login.php">
+    <input type="submit" name="logout" value="Logout">
+</form>
+
+
 </body>
 </html>
