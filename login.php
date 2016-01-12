@@ -1,4 +1,6 @@
-<?php session_start();
+<?php
+require_once("dbconf.php");
+session_start();
 
 if(isset($_POST['logout'])){
     unset($_SESSION['user']);
@@ -11,12 +13,20 @@ if(isset($_SESSION['user'])){
 
 $errormessage = null;
 if(isset($_POST['username'])){
-    if($_SESSION['user'] = $_POST == "Drekkness"){
+    global $config;
+    $pdo = new PDO($config['host'], $config['user'], $config['password']);
+
+    $stmt = $pdo ->prepare("SELECT * FROM users WHERE login = :login");
+    $stmt ->bindParam("login",$_POST['username']);
+    $stmt -> execute();
+    $result = $stmt ->fetch();
+
+    if($result === false){
+        $errormessage = "Wrong Username";
+    }else{
         $_SESSION['user'] = $_POST['username'];
         header("location: /");
         exit;
-    }else{
-        $errormessage = "Wrong Username";
     }
 }?>
 
