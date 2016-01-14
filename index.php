@@ -1,5 +1,7 @@
 <?php
+require_once("dbconf.php");
 session_start();
+$pdo = new PDO($config['host'], $config['user'], $config['password']);
 
 if(!isset($_SESSION['user'])){
     header("Location: /login.php");
