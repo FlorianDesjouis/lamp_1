@@ -75,7 +75,34 @@ Nombre de coup : <?php echo $_SESSION['score']; ?>
     ?></em>
 <form method="post" action="/login.php">
     <input type="submit" name="logout" value="Logout">
-</form>
+</form> <br>
+<style>
+table {
+  border: solid #000000 2px;
+  border-collapse: collapse;
+  text-align: center;
+}
+td {
+  border: solid #000000 2px;
+  border-collapse: collapse;
+}
+tr {
+  border: solid #000000 2px;
+  border-collapse: collapse;
+}
+</style>
+<table>
+  <tr>
+    <td>Joueur</td>
+    <td>Best Score</td>
+  </tr>
+<?php $leaderbord = $pdo->prepare("SELECT * FROM users");
+      $leaderbord->execute();
+      while ($leaderdata = $leaderbord->fetch()) {
+        echo '<tr><td>'.$leaderdata['login'].'</td><td>'.$leaderdata['best_score'].'</td></tr>';
+      }
+      ?>
+
 
 
 </body>
