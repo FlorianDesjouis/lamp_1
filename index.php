@@ -1,8 +1,12 @@
 <?php
-require_once("dbconf.php");
+require_once("config/dbconf.php");
 session_start();
-$pdo = new PDO($config['host'], $config['user'], $config['password']);
-
+try {
+    $pdo = new PDO($config['host'], $config['user'], $config['password']);
+} catch (PDOException $e){
+    echo 'Erreur :' .$e;
+}
+global $config;
 if(!isset($_SESSION['user'])){
     header("Location: /login.php");
     exit;
@@ -34,6 +38,15 @@ if( !isset($_POST['guess'])
         if (!isset($_SESSION['best_score']) || $_SESSION['best_score'] > $_SESSION['score']){
             $_SESSION['best_score'] = $_SESSION['score'];
         }
+        $best = $_SESSION['best_score'];
+        $login = $_SESSION['user'];
+        try {
+          $tumsoules = "UPDATE users SET best_score = '$best' WHERE users.login = '$login'";
+           $stmt = $pdo->prepare($tumsoules);
+        } catch (PDOException $e){
+          echo 'Erreur' .$e;
+        }
+        $stmt->execute();
         unset($_SESSION['choice']);
     }
 }
